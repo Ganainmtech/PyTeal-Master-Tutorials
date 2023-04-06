@@ -1,0 +1,260 @@
+#pragma version 8
+txn NumAppArgs
+int 0
+==
+bnz main_l14
+txna ApplicationArgs 0
+method "writeGlobal(string)void"
+==
+bnz main_l13
+txna ApplicationArgs 0
+method "readGlobal()string"
+==
+bnz main_l12
+txna ApplicationArgs 0
+method "deleteGlobal()void"
+==
+bnz main_l11
+txna ApplicationArgs 0
+method "writeLocal(string)void"
+==
+bnz main_l10
+txna ApplicationArgs 0
+method "readLocal()string"
+==
+bnz main_l9
+txna ApplicationArgs 0
+method "deleteLocal()void"
+==
+bnz main_l8
+err
+main_l8:
+txn OnCompletion
+int NoOp
+==
+txn ApplicationID
+int 0
+!=
+&&
+assert
+callsub deleteLocalcaster_11
+int 1
+return
+main_l9:
+txn OnCompletion
+int NoOp
+==
+txn ApplicationID
+int 0
+!=
+&&
+assert
+callsub readLocalcaster_10
+int 1
+return
+main_l10:
+txn OnCompletion
+int NoOp
+==
+txn ApplicationID
+int 0
+!=
+&&
+assert
+callsub writeLocalcaster_9
+int 1
+return
+main_l11:
+txn OnCompletion
+int NoOp
+==
+txn ApplicationID
+int 0
+!=
+&&
+assert
+callsub deleteGlobalcaster_8
+int 1
+return
+main_l12:
+txn OnCompletion
+int NoOp
+==
+txn ApplicationID
+int 0
+!=
+&&
+assert
+callsub readGlobalcaster_7
+int 1
+return
+main_l13:
+txn OnCompletion
+int NoOp
+==
+txn ApplicationID
+int 0
+!=
+&&
+assert
+callsub writeGlobalcaster_6
+int 1
+return
+main_l14:
+txn OnCompletion
+int NoOp
+==
+bnz main_l20
+txn OnCompletion
+int OptIn
+==
+bnz main_l19
+txn OnCompletion
+int CloseOut
+==
+bnz main_l18
+err
+main_l18:
+txn ApplicationID
+int 0
+!=
+assert
+int 1
+return
+main_l19:
+txn ApplicationID
+int 0
+!=
+assert
+int 1
+return
+main_l20:
+txn ApplicationID
+int 0
+==
+assert
+int 1
+return
+
+// writeGlobal
+writeGlobal_0:
+proto 1 0
+byte "quote"
+frame_dig -1
+extract 2 0
+app_global_put
+retsub
+
+// readGlobal
+readGlobal_1:
+proto 0 1
+byte ""
+byte "quote"
+app_global_get
+frame_bury 0
+frame_dig 0
+len
+itob
+extract 6 0
+frame_dig 0
+concat
+frame_bury 0
+retsub
+
+// deleteGlobal
+deleteGlobal_2:
+proto 0 0
+byte "quote"
+app_global_del
+retsub
+
+// writeLocal
+writeLocal_3:
+proto 1 0
+txn Sender
+byte "name"
+frame_dig -1
+extract 2 0
+app_local_put
+retsub
+
+// readLocal
+readLocal_4:
+proto 0 1
+byte ""
+txn Sender
+byte "name"
+app_local_get
+frame_bury 0
+frame_dig 0
+len
+itob
+extract 6 0
+frame_dig 0
+concat
+frame_bury 0
+retsub
+
+// deleteLocal
+deleteLocal_5:
+proto 0 0
+txn Sender
+byte "name"
+app_local_del
+retsub
+
+// writeGlobal_caster
+writeGlobalcaster_6:
+proto 0 0
+byte ""
+txna ApplicationArgs 1
+frame_bury 0
+frame_dig 0
+callsub writeGlobal_0
+retsub
+
+// readGlobal_caster
+readGlobalcaster_7:
+proto 0 0
+byte ""
+callsub readGlobal_1
+frame_bury 0
+byte 0x151f7c75
+frame_dig 0
+concat
+log
+retsub
+
+// deleteGlobal_caster
+deleteGlobalcaster_8:
+proto 0 0
+callsub deleteGlobal_2
+retsub
+
+// writeLocal_caster
+writeLocalcaster_9:
+proto 0 0
+byte ""
+txna ApplicationArgs 1
+frame_bury 0
+frame_dig 0
+callsub writeLocal_3
+retsub
+
+// readLocal_caster
+readLocalcaster_10:
+proto 0 0
+byte ""
+callsub readLocal_4
+frame_bury 0
+byte 0x151f7c75
+frame_dig 0
+concat
+log
+retsub
+
+// deleteLocal_caster
+deleteLocalcaster_11:
+proto 0 0
+callsub deleteLocal_5
+retsub
