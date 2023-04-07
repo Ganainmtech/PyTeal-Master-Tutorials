@@ -1,0 +1,105 @@
+#pragma version 8
+txn NumAppArgs
+int 0
+==
+bnz main_l4
+txna ApplicationArgs 0
+method "call_internal(string,uint64,uint64)uint64"
+==
+bnz main_l3
+err
+main_l3:
+txn OnCompletion
+int NoOp
+==
+txn ApplicationID
+int 0
+!=
+&&
+assert
+callsub callinternalcaster_3
+int 1
+return
+main_l4:
+txn OnCompletion
+int NoOp
+==
+bnz main_l6
+err
+main_l6:
+txn ApplicationID
+int 0
+==
+assert
+int 1
+return
+
+// add
+add_0:
+proto 2 1
+frame_dig -2
+frame_dig -1
++
+retsub
+
+// subtract
+subtract_1:
+proto 2 1
+frame_dig -2
+frame_dig -1
+-
+retsub
+
+// call_internal
+callinternal_2:
+proto 3 1
+int 0
+frame_dig -3
+extract 2 0
+byte "add"
+==
+bnz callinternal_2_l3
+frame_dig -3
+extract 2 0
+byte "subtract"
+==
+bz callinternal_2_l4
+frame_dig -2
+frame_dig -1
+callsub subtract_1
+frame_bury 0
+b callinternal_2_l4
+callinternal_2_l3:
+frame_dig -2
+frame_dig -1
+callsub add_0
+frame_bury 0
+callinternal_2_l4:
+retsub
+
+// call_internal_caster
+callinternalcaster_3:
+proto 0 0
+int 0
+byte ""
+int 0
+dup
+txna ApplicationArgs 1
+frame_bury 1
+txna ApplicationArgs 2
+btoi
+frame_bury 2
+txna ApplicationArgs 3
+btoi
+frame_bury 3
+frame_dig 1
+frame_dig 2
+frame_dig 3
+callsub callinternal_2
+frame_bury 0
+byte 0x151f7c75
+frame_dig 0
+itob
+concat
+log
+retsub
